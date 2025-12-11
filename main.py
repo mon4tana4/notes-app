@@ -43,3 +43,58 @@ class NotesApp:
 
         sys.excepthook = handle_exception
         self.root.report_callback_exception = lambda *args: handle_exception(*args)
+
+    def update_status(self, message):
+        if hasattr(self, 'status_var'):
+            self.status_var.set(message)
+
+    def create_widgets(self):
+        self.create_menu()
+
+        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        main_frame.columnconfigure(1, weight=1)
+        main_frame.rowconfigure(1, weight=1)
+
+        left_frame = ttk.LabelFrame(main_frame, text="Список заметок", padding="5")
+        left_frame.grid(row=1, column=0, sticky="nsew", padx=(0, 10))
+
+        btn_frame = ttk.Frame(left_frame)
+        btn_frame.pack(fill="x", pady=(0, 5))
+
+        ttk.Button(btn_frame, text="Новая", command=self.new_note).pack(side="left", fill="x", expand=True, padx=(0, 2))
+        ttk.Button(btn_frame, text="Удалить", command=self.delete_note).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(btn_frame, text="Экспорт", command=self.export_note).pack(side="left", fill="x", expand=True,
+                                                                             padx=(2, 0))
+
+        self.notes_listbox = tk.Listbox(left_frame, height=20, font=("Arial", 10))
+        self.notes_listbox.pack(fill="both", expand=True)
+        self.notes_listbox.bind('<<ListboxSelect>>', self.on_note_select)
+
+        right_frame = ttk.LabelFrame(main_frame, text="Редактор заметки", padding="5")
+        right_frame.grid(row=1, column=1, sticky="nsew")
+        right_frame.columnconfigure(0, weight=1)
+        right_frame.rowconfigure(1, weight=1)
+
+        ttk.Label(right_frame, text="Заголовок:").grid(row=0, column=0, sticky="w", pady=(0, 5))
+        self.title_entry = ttk.Entry(right_frame, font=("Arial", 11))
+        self.title_entry.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+
+        ttk.Label(right_frame, text="Текст заметки:").grid(row=1, column=0, sticky="w")
+        self.text_area = scrolledtext.ScrolledText(right_frame, wrap="word", font=("Arial", self.font_size))
+        self.text_area.grid(row=2, column=0, sticky="nsew", pady=(0, 10))
+
+        btn_save_frame = ttk.Frame(right_frame)
+        btn_save_frame.grid(row=3, column=0, sticky="e")
+
+        ttk.Button(btn_save_frame, text="Сохранить", command=self.save_note).pack(side="right", padx=(5, 0))
+        ttk.Button(btn_save_frame, text="Очистить", command=self.clear_note).pack(side="right", padx=5)
+
+        self.status_var = tk.StringVar()
+        status_bar = ttk.Label(main_frame, textvariable=self.status_var, relief="sunken")
+        status_bar.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(10, 0))
+
+        self.update_notes_list()
