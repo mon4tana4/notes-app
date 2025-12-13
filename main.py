@@ -150,3 +150,20 @@ class NotesApp:
             self.update_status("Полноэкранный режим")
         else:
             self.update_status("Оконный режим")
+
+    def change_font_size(self, size):
+        self.font_size = size
+        self.text_area.config(font=("Arial", self.font_size))
+        self.update_status(f"Размер шрифта: {size}")
+
+    def load_notes(self):
+        try:
+            if os.path.exists(self.notes_file):
+                with open(self.notes_file, 'r', encoding='utf-8') as f:
+                    self.notes = json.load(f)
+            else:
+                self.notes = []
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось загрузить заметки: {e}")
+            self.notes = []
+
