@@ -167,3 +167,12 @@ class NotesApp:
             messagebox.showerror("Ошибка", f"Не удалось загрузить заметки: {e}")
             self.notes = []
 
+    def save_notes(self):
+        try:
+            with open(self.notes_file, 'w', encoding='utf-8') as f:
+                json.dump(self.notes, f, ensure_ascii=False, indent=2)
+            return True
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось сохранить заметки: {e}")
+            return False
+
