@@ -98,3 +98,42 @@ class NotesApp:
         status_bar.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(10, 0))
 
         self.update_notes_list()
+
+    def create_menu(self):
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Файл", menu=file_menu)
+        file_menu.add_command(label="Новая заметка", command=self.new_note, accelerator="Ctrl+N")
+        file_menu.add_command(label="Сохранить", command=self.save_note, accelerator="Ctrl+S")
+        file_menu.add_separator()
+        file_menu.add_command(label="Экспорт заметки", command=self.export_note)
+        file_menu.add_command(label="Импорт заметки", command=self.import_note)
+        file_menu.add_separator()
+        file_menu.add_command(label="Выход", command=self.on_closing)
+
+        view_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Вид", menu=view_menu)
+
+        size_menu = tk.Menu(view_menu, tearoff=0)
+        view_menu.add_cascade(label="Размер окна", menu=size_menu)
+        size_menu.add_command(label="Маленький (600x400)", command=lambda: self.resize_window(600, 400))
+        size_menu.add_command(label="Средний (800x600)", command=lambda: self.resize_window(800, 600))
+        size_menu.add_command(label="Большой (1000x700)", command=lambda: self.resize_window(1000, 700))
+        size_menu.add_command(label="Полный экран", command=self.toggle_fullscreen)
+
+        font_menu = tk.Menu(view_menu, tearoff=0)
+        view_menu.add_cascade(label="Размер шрифта", menu=font_menu)
+        font_menu.add_command(label="Маленький (10)", command=lambda: self.change_font_size(10))
+        font_menu.add_command(label="Средний (12)", command=lambda: self.change_font_size(12))
+        font_menu.add_command(label="Большой (14)", command=lambda: self.change_font_size(14))
+        font_menu.add_command(label="Огромный (16)", command=lambda: self.change_font_size(16))
+
+        help_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Справка", menu=help_menu)
+        help_menu.add_command(label="О программе", command=self.show_about)
+        help_menu.add_command(label="Инструкция", command=self.show_help)
+
+        self.root.bind('<Control-n>', lambda e: self.new_note())
+        self.root.bind('<Control-s>', lambda e: self.save_note())
