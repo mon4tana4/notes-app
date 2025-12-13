@@ -137,3 +137,16 @@ class NotesApp:
 
         self.root.bind('<Control-n>', lambda e: self.new_note())
         self.root.bind('<Control-s>', lambda e: self.save_note())
+
+    def resize_window(self, width, height):
+        self.root.geometry(f"{width}x{height}")
+        self.center_window()
+        self.update_status(f"Размер окна: {width}x{height}")
+
+    def toggle_fullscreen(self):
+        is_fullscreen = self.root.attributes('-fullscreen')
+        self.root.attributes('-fullscreen', not is_fullscreen)
+        if not is_fullscreen:
+            self.update_status("Полноэкранный режим")
+        else:
+            self.update_status("Оконный режим")
