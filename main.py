@@ -197,3 +197,11 @@ class NotesApp:
         except Exception as e:
             messagebox.showerror("Ошибка", f"Не удалось загрузить заметку: {e}")
 
+    def new_note(self):
+        self.current_note_index = -1
+        self.title_entry.delete(0, "end")
+        self.text_area.delete(1.0, "end")
+        self.title_entry.insert(0, f"Новая заметка {len(self.notes) + 1}")
+        self.text_area.focus()
+        self.update_status("Создание новой заметки")
+
