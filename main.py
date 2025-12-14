@@ -205,3 +205,145 @@ class NotesApp:
         self.text_area.focus()
         self.update_status("Создание новой заметки")
 
+    def save_note(self):
+        try:
+            title = self.title_entry.get().strip()
+            content = self.text_area.get(1.0, "end").strip()
+
+            if not title:
+                messagebox.showwarning("Внимание", "Введите заголовок заметки")
+                return
+
+            note_data = {
+                'title': title,
+                'content': content,
+                'created': datetime.now().strftime("%d.%m.%Y %H:%M"),
+                'modified': datetime.now().strftime("%d.%m.%Y %H:%M")
+            }
+
+            if self.current_note_index >= 0:
+                self.notes[self.current_note_index] = note_data
+                self.update_status(f"Заметка обновлена: {title}")
+            else:
+                self.notes.append(note_data)
+                self.current_note_index = len(self.notes) - 1
+                self.update_status(f"Заметка создана: {title}")
+
+            self.save_notes()
+            self.update_notes_list()
+            self.notes_listbox.selection_set(self.current_note_index)
+
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось сохранить заметку: {e}")
+
+    def delete_note(self):
+        try:
+            if self.current_note_index >= 0:
+                note_title = self.notes[self.current_note_index].get('title', '')
+                if messagebox.askyesno("Подтверждение", f"Удалить заметку '{note_title}'?"):
+                    del self.notes[self.current_note_index]
+                    self.save_notes()
+                    self.update_notes_list()
+                    self.new_note()
+                    self.update_status("Заметка удалена")
+            else:
+                messagebox.showinfo("Информация", "Выберите заметку для удаления")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось удалить заметку: {e}")
+
+    def clear_note(self):
+        self.title_entry.delete(0, "end")
+        self.text_area.delete(1.0, "end")
+        self.update_status("Редактор очищен")
+
+    def export_note(self):
+        if self.current_note_index >= 0:
+            note = self.notes[self.current_note_index]
+            file_path = filedialog.asksaveasfilename(
+                defaultextension=".txt",
+                filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+                initialfile=f"{note['title']}.txt"
+            )
+            if file_path:
+                try:
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(f"Заголовок: {note['title']}\n")
+                        f.write(f"Дата создания: {note['created']}\n")
+                        f.write(f"Дата изменения: {note['modified']}\n")
+                        f.write("\n" + "=" * 50 + "\n\n")
+                        f.write(note['content'])
+                    messagebox.showinfo("Экспорт", f"Заметка сохранена в файл:\n{file_path}")
+                except Exception as e:
+                    messagebox.showerror("Ошибка", f"Не удалось экспортировать: {e}")
+        else:
+            messagebox.showinfo("Информация", "Выберите заметку для экспорта")
+
+    def import_note(self):
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+        )
+        if file_path:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+
+                title = os.path.basename(file_path).replace('.txt', '')
+                note_data = {
+                    'title': title,
+                    'content': content,
+                    'created': datetime.now().strftime("%d.%m.%Y %H:%M"),
+                    'modified': datetime.now().strftime("%d.%m.%Y %H:%M")
+                }
+                self.notes.append(note_data)
+                self.save_notes()
+                self.update_notes_list()
+                messagebox.showinfo("Импорт", "Заметка успешно импортирована")
+            except Exception as e:
+                messagebox.showerror("Ошибка", f"Не удалось импортировать: {e}")
+
+    def show_about(self):
+        about_text = """Менеджер заметок
+Версия 1.0
+
+Лабораторная работа по программированию
+
+Функции:
+- Создание, редактирование и удаление заметок
+- Сохранение данных в JSON формате
+- Настройка размеров окна приложения
+- Обработка исключений
+- Экспорт и импорт заметок"""
+        messagebox.showinfo("О программе", about_text)
+
+    def show_help(self):
+        help_text = """Инструкция по использованию:
+
+1. Создание новой заметки: Файл → Новая заметка (Ctrl+N)
+2. Сохранение заметки: Файл → Сохранить (Ctrl+S)
+3. Изменение размера окна: Вид → Размер окна
+4. Изменение размера шрифта: Вид → Размер шрифта
+5. Экспорт заметки: Файл → Экспорт заметки
+6. Импорт заметки: Файл → Импорт заметки
+
+Все данные автоматически сохраняются в файл notes_data.json"""
+        messagebox.showinfo("Инструкция", help_text)
+
+    def on_closing(self):
+        if messagebox.askokcancel("Выход", "Сохранить изменения перед выходом?"):
+            if self.save_notes():
+                self.root.destroy()
+        else:
+            self.root.destroy()
+
+
+def main():
+    try:
+        root = tk.Tk()
+        app = NotesApp(root)
+        root.mainloop()
+    except Exception as e:
+        messagebox.showerror("Критическая ошибка", f"Не удалось запустить приложение: {e}")
+
+
+if __name__ == "__main__":
+    main()
