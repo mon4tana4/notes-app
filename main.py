@@ -176,3 +176,24 @@ class NotesApp:
             messagebox.showerror("Ошибка", f"Не удалось сохранить заметки: {e}")
             return False
 
+    def update_notes_list(self):
+        self.notes_listbox.delete(0, "end")
+        for i, note in enumerate(self.notes):
+            title = note.get('title', 'Без названия')
+            self.notes_listbox.insert("end", f"{i + 1}. {title}")
+        self.update_status(f"Заметок: {len(self.notes)}")
+
+    def on_note_select(self, event):
+        try:
+            selection = self.notes_listbox.curselection()
+            if selection:
+                self.current_note_index = selection[0]
+                note = self.notes[self.current_note_index]
+                self.title_entry.delete(0, "end")
+                self.title_entry.insert(0, note.get('title', ''))
+                self.text_area.delete(1.0, "end")
+                self.text_area.insert(1.0, note.get('content', ''))
+                self.update_status(f"Редактирование заметки {self.current_note_index + 1}")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось загрузить заметку: {e}")
+
